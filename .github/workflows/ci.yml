@@ -1,0 +1,45 @@
+name: ShopSmart CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # .NET Backend
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore .NET dependencies
+        run: dotnet restore ./shopsmart/shopsmart.csproj
+
+      - name: Build .NET API
+        run: dotnet build ./shopsmart/shopsmart.csproj --no-restore --configuration Release
+
+      # React Frontend
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ./shopsmartfront/shopsmart/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./shopsmartfront/shopsmart
+        run: npm ci
+
+      - name: Build React frontend
+        working-directory: ./shopsmartfront/shopsmart
+        run: npm run build
