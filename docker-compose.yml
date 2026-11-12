@@ -1,0 +1,23 @@
+services:
+
+  api:
+    build:
+      context: ./shopsmart
+      dockerfile: Dockerfile
+    container_name: shopsmart-api-container
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=host.docker.internal,1433;Database=shopsmart;User Id=shopsmart_docker;Password=${SHOPSMART_DB_PASSWORD};TrustServerCertificate=True;"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./shopsmartfront/shopsmart
+      dockerfile: Dockerfile
+    container_name: shopsmart-frontend-container
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
